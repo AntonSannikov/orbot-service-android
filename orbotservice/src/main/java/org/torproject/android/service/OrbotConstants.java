@@ -5,6 +5,7 @@ package org.torproject.android.service;
 
 import android.content.Intent;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -182,4 +183,33 @@ public interface OrbotConstants {
     );
 
     String ONION_EMOJI = "\uD83E\uDDC5";
+
+
+     List<String> COUNTRY_CODES = Arrays.asList(
+            "DE",
+            "AT",
+            "SE",
+            "CH",
+            "IS",
+            "CA",
+            "US",
+            "ES",
+            "FR",
+            "BG",
+            "PL",
+            "AU",
+            "BR",
+            "CZ",
+            "DK",
+            "FI",
+            "GB",
+            "HU",
+            "NL",
+            "JP",
+            "RO",
+            "RU",
+            "SG",
+            "SK"
+    );
+
 }
