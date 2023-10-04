@@ -16,11 +16,15 @@
 
 package org.torproject.android.service.vpn;
 
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.pm.ResolveInfo;
 import android.net.ProxyInfo;
 import android.net.VpnService;
 import android.os.Build;
@@ -51,6 +55,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -358,47 +363,31 @@ public class OrbotVpnManager implements Handler.Callback, OrbotConstants {
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void doLollipopAppRouting(VpnService.Builder builder) throws NameNotFoundException {
-        var apps = TorifiedApp.getApps(mService, prefs);
-        var perAppEnabled = false;
-        var canBypass = !isVpnLockdown(mService);
+        PackageManager pMgr = mService.getApplicationContext().getPackageManager();
+        var mainIntent = new Intent(Intent.ACTION_MAIN, null);
+        mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
 
-        for (TorifiedApp app : apps) {
-            if (app.isTorified() && (!app.getPackageName().equals(mService.getPackageName()))) {
-                if (prefs.getBoolean(app.getPackageName() + OrbotConstants.APP_TOR_KEY, true)) {
-                    builder.addAllowedApplication(app.getPackageName());
+        var resolvedInfos = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                ? pMgr.queryIntentActivities(mainIntent, PackageManager.ResolveInfoFlags.of(0L))
+                : pMgr.queryIntentActivities(mainIntent, 0);
+
+        List<String> restrictedApps = Arrays.asList(mService.getPackageName(), "org.torproject.android");
+
+        for (ResolveInfo rInfo: resolvedInfos) {
+            try {
+                var packageName = rInfo.activityInfo.packageName;
+                PackageInfo pInfo = pMgr.getPackageInfo(packageName, PackageManager.GET_PERMISSIONS);
+                if (pInfo != null && pInfo.requestedPermissions != null) {
+                    for (String permInfo : pInfo.requestedPermissions) {
+                        if (permInfo.equals(Manifest.permission.INTERNET) && !restrictedApps.contains(packageName)) {
+                            builder.addAllowedApplication(packageName);
+                            break;
+                        }
+                    }
                 }
-
-                perAppEnabled = true;
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        }
-
-        if (!perAppEnabled) {
-
-            //if not VPN lockdown, then we can let these apps all go by
-            if (canBypass) {
-
-                //remove all apps from Tor
-                builder.addDisallowedApplication(mService.getPackageName());
-
-                //disallow all apps since we no longer have a default "full device" mode
-              //  for (TorifiedApp app : apps)
-                //    builder.addDisallowedApplication(app.getPackageName());
-
-                for (String packageName : OrbotConstants.BYPASS_VPN_PACKAGES)
-                    builder.addDisallowedApplication(packageName);
-
-            }
-            else
-            {
-                //nothing will work unless they choose it in the choose apps screen
-                //remove all apps from Tor
-
-            }
-
-        } else {
-            Log.i(TAG, "Skip bypass perApp? " + perAppEnabled + " vpnLockdown? " + !canBypass);
-
-
         }
     }
 

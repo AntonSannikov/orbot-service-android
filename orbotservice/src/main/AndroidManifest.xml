@@ -9,7 +9,12 @@
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
     <!-- for Android 13 -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
-
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN"/>
+            <category android:name="android.intent.category.LAUNCHER"/>
+        </intent>
+    </queries>
     <application>
         <provider
             android:name="org.torproject.android.ui.v3onionservice.OnionServiceContentProvider"
