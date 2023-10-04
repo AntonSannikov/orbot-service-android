@@ -175,7 +175,7 @@ public class OrbotService extends VpnService implements OrbotConstants {
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void createNotificationChannel() {
         var mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        var mChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, getString(R.string.app_name), NotificationManager.IMPORTANCE_LOW);
+        var mChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, getString(R.string.app_name), NotificationManager.IMPORTANCE_HIGH);
         mChannel.setDescription(getString(R.string.app_description));
         mChannel.enableLights(false);
         mChannel.enableVibration(false);
