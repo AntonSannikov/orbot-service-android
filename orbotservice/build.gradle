@@ -87,7 +87,7 @@ publishing {
         release(MavenPublication) {
             groupId = 'com.github.AntonSannikov'
             artifactId = 'orbot-service-android'
-            version = '0.0.7'
+            version = '0.0.8'
             afterEvaluate {
                 from components.release
             }
