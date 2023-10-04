@@ -118,6 +118,8 @@ public class OrbotService extends VpnService implements OrbotConstants {
 
     private PowerConnectionReceiver mPowerReceiver;
 
+    private Handler mUiHandler = new Handler(Looper.getMainLooper());
+
     /**
      * @param bridgeList bridges that were manually entered into Orbot settings
      * @return Array with each bridge as an element, no whitespace entries see issue #289...
@@ -209,6 +211,9 @@ public class OrbotService extends VpnService implements OrbotConstants {
         }
 
         mNotifyBuilder.setContentTitle(title);
+
+        final String message = title;
+        mUiHandler.post(() -> { TorConnectionNotifier.notify(message); });
 
         mNotifyBuilder.mActions.clear(); // clear out any notification actions, if any
         if (conn != null && mCurrentStatus.equals(STATUS_ON)) { // only add new identity action when there is a connection
@@ -1095,6 +1100,7 @@ public class OrbotService extends VpnService implements OrbotConstants {
             }
         }
         showToolbarNotification(notificationMessage, NOTIFY_ID, R.drawable.ic_stat_tor);
+        mUiHandler.post(() -> { TorConnectionNotifier.notify(logMessage); });
         mHandler.post(() -> LocalBroadcastManager.getInstance(OrbotService.this).sendBroadcast(localIntent));
     }
 
