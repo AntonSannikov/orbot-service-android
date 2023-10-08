@@ -152,6 +152,7 @@ public class OrbotService extends VpnService implements OrbotConstants {
 
     private void showConnectedToTorNetworkNotification() {
         mNotifyBuilder.setProgress(0, 0, false);
+
         showToolbarNotification(getString(R.string.status_activated), NOTIFY_ID, R.drawable.ic_stat_tor);
     }
 
@@ -200,9 +201,12 @@ public class OrbotService extends VpnService implements OrbotConstants {
         mNotifyBuilder.setOngoing(true);
 
         var title = getString(R.string.status_disabled);
-        if (mCurrentStatus.equals(STATUS_STARTING) || notifyMsg.equals(getString(R.string.status_starting_up)))
+        if (mCurrentStatus.equals(STATUS_STARTING) || notifyMsg.equals(getString(R.string.status_starting_up))) {
+            mUiHandler.post(() -> { TorConnectionNotifier.notify(TorConnectionNotifier.CONNECTING); });
             title = getString(R.string.status_starting_up);
+        }
         else if (mCurrentStatus.equals(STATUS_ON)) {
+            mUiHandler.post(() -> { TorConnectionNotifier.notify(TorConnectionNotifier.CONNECTED); });
             title = getString(R.string.status_activated);
             if (IPtProxy.isSnowflakeProxyRunning()) {
                 // todo now that kindness mode is a whole thing i don't think we should put snowflakes up here ...
@@ -211,9 +215,6 @@ public class OrbotService extends VpnService implements OrbotConstants {
         }
 
         mNotifyBuilder.setContentTitle(title);
-
-        final String message = title;
-        mUiHandler.post(() -> { TorConnectionNotifier.notify(message); });
 
         mNotifyBuilder.mActions.clear(); // clear out any notification actions, if any
         if (conn != null && mCurrentStatus.equals(STATUS_ON)) { // only add new identity action when there is a connection
@@ -280,6 +281,7 @@ public class OrbotService extends VpnService implements OrbotConstants {
         debug("stopTor");
 
         if (showNotification) sendCallbackLogMessage(getString(R.string.status_shutting_down));
+        mUiHandler.post(() -> { TorConnectionNotifier.notify(TorConnectionNotifier.DISCONNECTING); });
 
         var connectionPathway = Prefs.getConnectionPathway();
         // todo this needs to handle a lot of different cases that haven't been defined yet
@@ -296,6 +298,7 @@ public class OrbotService extends VpnService implements OrbotConstants {
         stopForeground(!showNotification);
 
         if (showNotification) sendCallbackLogMessage(getString(R.string.status_disabled));
+        mUiHandler.post(() -> { TorConnectionNotifier.notify(TorConnectionNotifier.NOT_CONNECTED); });
 
         mPortDns = -1;
         mPortSOCKS = -1;
@@ -310,6 +313,7 @@ public class OrbotService extends VpnService implements OrbotConstants {
 
     private void stopTorOnError(String message) {
         stopTorAsync(false);
+        mUiHandler.post(() -> { TorConnectionNotifier.notify(TorConnectionNotifier.NOT_CONNECTED); });
         showToolbarNotification(
                 getString(R.string.unable_to_start_tor) + ": " + message,
                 ERROR_NOTIFY_ID, R.drawable.ic_stat_notifyerr);
