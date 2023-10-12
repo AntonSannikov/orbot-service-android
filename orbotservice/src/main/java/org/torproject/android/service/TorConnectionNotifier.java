@@ -11,9 +11,16 @@ public class TorConnectionNotifier {
     @Nullable
     private static TorConnectionListener torListener;
 
+
     public static void notify(String message) {
         if (torListener != null) {
             torListener.onEvent(message);
+        }
+    }
+
+    public static void notifyLog(String message) {
+        if (torListener != null) {
+            torListener.onLog(message);
         }
     }
 

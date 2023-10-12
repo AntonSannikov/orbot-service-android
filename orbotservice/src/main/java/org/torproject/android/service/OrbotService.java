@@ -1104,7 +1104,7 @@ public class OrbotService extends VpnService implements OrbotConstants {
             }
         }
         showToolbarNotification(notificationMessage, NOTIFY_ID, R.drawable.ic_stat_tor);
-        mUiHandler.post(() -> { TorConnectionNotifier.notify(logMessage); });
+        mUiHandler.post(() -> { TorConnectionNotifier.notifyLog(logMessage); });
         mHandler.post(() -> LocalBroadcastManager.getInstance(OrbotService.this).sendBroadcast(localIntent));
     }
 
