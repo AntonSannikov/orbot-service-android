@@ -441,8 +441,8 @@ public class OrbotService extends VpnService implements OrbotConstants {
 
         try {
             //set proper content URIs for current build flavor
-            V3_ONION_SERVICES_CONTENT_URI = Uri.parse("content://" + getApplicationContext().getPackageName() + ".org.torproject.android.ui.v3onionservice/v3");
-            V3_CLIENT_AUTH_URI = Uri.parse("content://" + getApplicationContext().getPackageName() + ".org.torproject.android.ui.v3onionservice.clientauth/v3auth");
+            V3_ONION_SERVICES_CONTENT_URI = Uri.parse("content://" + OrbotHelper.applicationId + ".org.torproject.android.ui.v3onionservice/v3");
+            V3_CLIENT_AUTH_URI = Uri.parse("content://" + OrbotHelper.applicationId + ".org.torproject.android.ui.v3onionservice.clientauth/v3auth");
 
             try {
                 mHandler = new Handler();
