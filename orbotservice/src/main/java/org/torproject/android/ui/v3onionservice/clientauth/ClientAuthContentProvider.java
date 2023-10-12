@@ -21,8 +21,8 @@ public class ClientAuthContentProvider extends ContentProvider {
             V3ClientAuth.HASH,
             V3ClientAuth.ENABLED,
     };
-    private static final String AUTH = OrbotHelper.applicationId + ".org.torproject.android.ui.v3onionservice.clientauth";
-    public static final Uri CONTENT_URI = Uri.parse("content://" + AUTH + "/v3auth");
+    private static String AUTH = "";
+    public static Uri CONTENT_URI;
     private static final int V3AUTHS = 1, V3AUTH_ID = 2;
 
     private static final UriMatcher uriMatcher;
@@ -31,6 +31,11 @@ public class ClientAuthContentProvider extends ContentProvider {
         uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
         uriMatcher.addURI(AUTH, "v3auth", V3AUTHS);
         uriMatcher.addURI(AUTH, "v3auth/#", V3AUTH_ID);
+    }
+
+    public static void initialize(String applicationId) {
+        AUTH = OrbotHelper.applicationId + ".org.torproject.android.ui.v3onionservice.clientauth";
+        CONTENT_URI  = Uri.parse("content://" + AUTH + "/v3auth");
     }
 
     private ClientAuthDatabase mDatabase;
